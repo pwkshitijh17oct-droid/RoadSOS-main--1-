@@ -312,13 +312,15 @@ export default function Map({ activeFilter, routeData, onLocationReady, onServic
                 longitude
               );
 
+
+              
             if (distanceMoved > 500) {
 
               console.log(
                 "[Services Refresh] User moved:",
                 distanceMoved.toFixed(0),
                 "meters"
-              );
+              );    
 
               fetchServices(latitude, longitude);
 
