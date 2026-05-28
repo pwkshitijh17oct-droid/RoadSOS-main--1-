@@ -203,6 +203,11 @@ export default function Map({ activeFilter, routeData, onLocationReady, onServic
       if (services.length > 0) {
         allServicesRef.current = services;
 
+        localStorage.setItem(
+          "cachedNearbyServices",
+          JSON.stringify(services)
+        );
+
         setServicesVersion((v) => v + 1);
 
         onServicesLoaded?.(services);
@@ -213,17 +218,47 @@ export default function Map({ activeFilter, routeData, onLocationReady, onServic
       }
 
     } catch (error) {
+
       console.error(error);
 
-      const fallback = generateFallback(lat, lng);
+      const cachedServices =
+        localStorage.getItem(
+          "cachedNearbyServices"
+        );
 
-      allServicesRef.current = fallback;
+      if (cachedServices) {
 
-      setServicesVersion((v) => v + 1);
+        const parsed =
+          JSON.parse(cachedServices);
 
-      onServicesLoaded?.(fallback);
+        allServicesRef.current = parsed;
 
-      onError?.("Using fallback simulated services");
+        setServicesVersion((v) => v + 1);
+
+        onServicesLoaded?.(parsed);
+
+        onError?.(
+          "📦 Offline Mode — Using cached nearby services"
+        );
+
+      } else {
+
+        const fallback =
+          generateFallback(lat, lng);
+
+        allServicesRef.current =
+          fallback;
+
+        setServicesVersion((v) => v + 1);
+
+        onServicesLoaded?.(fallback);
+
+        onError?.(
+          "Using fallback simulated services"
+        );
+
+      }
+
     }
   }
 
@@ -313,7 +348,7 @@ export default function Map({ activeFilter, routeData, onLocationReady, onServic
               );
 
 
-              
+
             if (distanceMoved > 500) {
 
               console.log(
